@@ -56,6 +56,7 @@ argParser.add_argument('-l', type=str, help='output file name for logging purpos
 argParser.add_argument('--jsononeperline', action="store_true", help='events in output JSON will be enlisted one per line, otherwise by default JSON is humanreadable', default="False")
 argParser.add_argument('--version3', action="store_true", help='required if modsec_audit.log is produced by ModSecurity3', default="False")
 argParser.add_argument('--jsonaudit', action='store_true', help='required if modsec_audit.log is JSON')
+argParser.add_argument('-d', type=str, help='use given base directory for file output (default is location of logfile)', required=False)
 passedArgs = vars(argParser.parse_args())
 
 inputFileName = passedArgs['f']
@@ -140,7 +141,15 @@ else:
     print('inputFileName :', inputFileName)
 
 fileBaseName = str(os.path.splitext(os.path.split(inputFileName)[-1])[0]) + '_' + str(datetimenow)
-fileBaseOutputDir = os.path.join(os.path.dirname(inputFileName), 'modsec_output')
+fileBaseDir = os.path.dirname(inputFileName)
+if passedArgs['d'] is not None:
+    if passedArgs['d'] == '.':
+        fileBaseDir = os.getcwd()
+    else:
+        fileBaseDir = passedArgs['d']
+
+fileBaseOutputDir = os.path.join(fileBaseDir, 'modsec_output')
+
 if jsonOutputFilename == None:
     jsonOutputFilename = fileBaseName + '.json'
 if xlsxOutputFilename == None:
